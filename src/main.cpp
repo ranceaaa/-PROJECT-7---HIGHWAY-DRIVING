@@ -18,9 +18,11 @@ bool sortcol( const vector<double>& v1,
                const vector<double>& v2 ) { 
  return v1[0] < v2[0]; 
 } 
+
 int lane = 1;
 double ref_vel = 0.0;
 int wait = 3;
+
 int main() {
   uWS::Hub h;
 
@@ -99,10 +101,10 @@ int main() {
           auto sensor_fusion = j[1]["sensor_fusion"];
 	  
           json msgJson;
-	  if(prev_size>0){
-car_s = end_path_s;
-}
-	 bool too_close = false;
+		  if(prev_size>0){
+			car_s = end_path_s;
+		  }
+		 bool too_close = false;
          bool switch_lane = false;
          bool car_left = false;
          bool car_right = false;
@@ -120,10 +122,10 @@ car_s = end_path_s;
          vector<vector<double>> car_right_back;
          for(int i = 0; i< sensor_fusion.size();i++)
          {
-	   float d = sensor_fusion[i][6];
+	       float d = sensor_fusion[i][6];
            if(d < (2+4*lane+2) && d>(2+4*lane-2))
            {
-	     double vx = sensor_fusion[i][3];
+	         double vx = sensor_fusion[i][3];
              double vy = sensor_fusion[i][4];
              double check_speed = sqrt(vx*vx+vy*vy);
              double check_car_s = sensor_fusion[i][5];
@@ -133,9 +135,10 @@ car_s = end_path_s;
              { 
                too_close = true;
                switch_lane = true;
-	     }
-	   }
-           if( d < (2+4*(lane-1)+2) && d > (2+4*(lane-1)-2)){
+	         }
+	       }
+           if( d < (2+4*(lane-1)+2) && d > (2+4*(lane-1)-2))
+		    {
              double vx = sensor_fusion[i][3];
              double vy = sensor_fusion[i][4];
              double check_speed = sqrt(vx*vx+vy*vy);
@@ -149,10 +152,9 @@ car_s = end_path_s;
             } else{ data = {dif_speed,check_speed};
             car_left_back.push_back(data);}
               
-             
-             
             }
-          if( d < (2+4*(lane+1)+2) && d > (2+4*(lane+1)-2)){
+          if( d < (2+4*(lane+1)+2) && d > (2+4*(lane+1)-2))
+		    {
              double vx = sensor_fusion[i][3];
              double vy = sensor_fusion[i][4];
              double check_speed = sqrt(vx*vx+vy*vy);
@@ -165,70 +167,69 @@ car_s = end_path_s;
              car_right_front.push_back(data);
             } else{ data = {dif_speed,check_speed};
              car_right_back.push_back(data);}
-              
-             
              
             }
             
           }
-          //std::cout<<std::endl<<std::endl<<" -----------------------------------------------"<<std::endl<<std::endl;
-         //std::cout<<car_left_front.size()<<std::endl;
-         //std::cout<<car_right_front.size()<<std::endl;
-         //std::cout<<car_left_back.size()<<std::endl;
-         //std::cout<<car_right_back.size()<<std::endl;
-         if(car_left_front.size() != 0){
-         sort(car_left_front.begin(),car_left_front.end(),sortcol);
-	 s_front_left_car = car_left_front[0][0];
-         sp_front_left_car = car_left_front[0][1];
-         }else{ s_front_left_car = 0.0;
-                sp_front_left_car = 0.0;}
-         if(car_right_front.size() != 0){
-         sort(car_right_front.begin(),car_right_front.end(),sortcol);
-	 s_front_right_car = car_right_front[0][0];
-         sp_front_right_car = car_right_front[0][1];
-         }else{ s_front_right_car = 0.0;
+
+         if(car_left_front.size() != 0)
+		 {
+			sort(car_left_front.begin(),car_left_front.end(),sortcol);
+			s_front_left_car = car_left_front[0][0];
+			sp_front_left_car = car_left_front[0][1];
+		 }else{ 
+			s_front_left_car = 0.0;
+            sp_front_left_car = 0.0;}
+         if(car_right_front.size() != 0)
+		 {
+			sort(car_right_front.begin(),car_right_front.end(),sortcol);
+			s_front_right_car = car_right_front[0][0];
+			sp_front_right_car = car_right_front[0][1];
+         }else{
+			 s_front_right_car = 0.0;
              sp_front_right_car = 0.0;}
-	 if(car_left_back.size() != 0){
-         sort(car_left_back.begin(),car_left_back.end(),sortcol);
-	 s_back_left_car = car_left_back[0][0];
-         sp_back_left_car = car_left_back[0][1];
-         }else{ s_back_left_car = 0.0;
-               sp_back_left_car = 0.0;}
-	 if(car_right_back.size() != 0){
-         sort(car_right_back.begin(),car_right_back.end(),sortcol);
-	 s_back_right_car = car_right_back[0][0];
-         sp_back_right_car = car_right_back[0][1];
-         }else{ s_back_right_car = 0.0;
-                sp_back_right_car = 0.0;}
+		 if(car_left_back.size() != 0)
+		 {
+			sort(car_left_back.begin(),car_left_back.end(),sortcol);
+			s_back_left_car = car_left_back[0][0];
+			sp_back_left_car = car_left_back[0][1];
+         }else{ 
+			s_back_left_car = 0.0;
+            sp_back_left_car = 0.0;}
+		 if(car_right_back.size() != 0){
+			sort(car_right_back.begin(),car_right_back.end(),sortcol);
+			s_back_right_car = car_right_back[0][0];
+			sp_back_right_car = car_right_back[0][1];
+         }else{ 
+			s_back_right_car = 0.0;
+            sp_back_right_car = 0.0;}
+			
           if((s_front_left_car > 22 || s_front_left_car == 0.0) && (s_back_left_car <  -22 || s_back_left_car == 0.0) && sp_back_left_car <= car_speed  ){
                 car_left = true;
               }  
           if((s_front_right_car > 22 || s_front_right_car == 0.0) && (s_back_right_car < -22 || s_back_right_car == 0.0) && sp_back_left_car <= car_speed  ){
                 car_right = true;
               }   
-          if(car_left == true && lane > 0 && switch_lane == true && wait == 0){
-	      ref_vel -= 0.224;
+          if(car_left == true && lane > 0 && switch_lane == true && wait == 0)
+		    {
+			  ref_vel -= 0.224;
               lane -= 1;
               switch_lane = false;
               wait = 3;
-              //too_close = false;
             }
-            if(car_right == true && lane < 2 && switch_lane == true && wait == 0){
+            if(car_right == true && lane < 2 && switch_lane == true && wait == 0)
+			{
               ref_vel -= 0.224;
               lane += 1;
               wait = 3;
-              //too_close = false;
             }
-          if(too_close ){
-            
+          if(too_close )
+		  {
             ref_vel -= .224;
           }else if(ref_vel < 49.5){
             ref_vel += .224;
           }   
-          /**
-           * TODO: define a path made up of (x,y) points that the car will visit
-           *   sequentially every .02 seconds
-           */
+  
           vector<double> ptsx;
           vector<double> ptsy;
           double ref_x = car_x;
@@ -242,63 +243,67 @@ car_s = end_path_s;
              ptsy.push_back(prev_car_y);
              ptsy.push_back(car_y);
          } else{
- 	  ref_x = previous_path_x[prev_size-1];
-          ref_y = previous_path_y[prev_size-1];
-          double ref_x_prev = previous_path_x[prev_size-2];
-          double ref_y_prev = previous_path_y[prev_size-2];
-	  ref_yaw = atan2(ref_y-ref_y_prev,ref_x-ref_x_prev);
-	  ptsx.push_back(ref_x_prev);
-          ptsx.push_back(ref_x);
-          ptsy.push_back(ref_y_prev);
-          ptsy.push_back(ref_y);	
-}
-	  vector<double> next_wp0 = getXY(car_s+30,(2+4*lane),map_waypoints_s,map_waypoints_x,map_waypoints_y);
-	  vector<double> next_wp1 = getXY(car_s+60,(2+4*lane),map_waypoints_s,map_waypoints_x,map_waypoints_y);
- 	  vector<double> next_wp2 = getXY(car_s+90,(2+4*lane),map_waypoints_s,map_waypoints_x,map_waypoints_y);
-	  ptsx.push_back(next_wp0[0]);
-	  ptsx.push_back(next_wp1[0]);
-	  ptsx.push_back(next_wp2[0]);
-	  ptsy.push_back(next_wp0[1]);
-	  ptsy.push_back(next_wp1[1]);
-	  ptsy.push_back(next_wp2[1]);
-          for(int i = 0;i<ptsx.size();i++){
+			 ref_x = previous_path_x[prev_size-1];
+			 ref_y = previous_path_y[prev_size-1];
+			 double ref_x_prev = previous_path_x[prev_size-2];
+			 double ref_y_prev = previous_path_y[prev_size-2];
+			 ref_yaw = atan2(ref_y-ref_y_prev,ref_x-ref_x_prev);
+			 ptsx.push_back(ref_x_prev);
+			 ptsx.push_back(ref_x);
+			 ptsy.push_back(ref_y_prev);
+			 ptsy.push_back(ref_y);	
+		 }
+		  vector<double> next_wp0 = getXY(car_s+30,(2+4*lane),map_waypoints_s,map_waypoints_x,map_waypoints_y);
+		  vector<double> next_wp1 = getXY(car_s+60,(2+4*lane),map_waypoints_s,map_waypoints_x,map_waypoints_y);
+		  vector<double> next_wp2 = getXY(car_s+90,(2+4*lane),map_waypoints_s,map_waypoints_x,map_waypoints_y);
+		  ptsx.push_back(next_wp0[0]);
+		  ptsx.push_back(next_wp1[0]);
+		  ptsx.push_back(next_wp2[0]);
+		  ptsy.push_back(next_wp0[1]);
+		  ptsy.push_back(next_wp1[1]);
+		  ptsy.push_back(next_wp2[1]);
+          for(int i = 0;i<ptsx.size();i++)
+		  {
              double shift_x = ptsx[i]-ref_x;
              double shift_y = ptsy[i]-ref_y;
              ptsx[i] = (shift_x*cos(0-ref_yaw)-shift_y*sin(0-ref_yaw));
-	     ptsy[i] = (shift_x*sin(0-ref_yaw)+shift_y*cos(0-ref_yaw));
-         }
+			 ptsy[i] = (shift_x*sin(0-ref_yaw)+shift_y*cos(0-ref_yaw));
+          }
           tk::spline s;
           s.set_points(ptsx,ptsy);
           vector<double> next_x_vals;
-	  vector<double> next_y_vals;
-          for(int i = 0;i<previous_path_x.size();i++){
-	      next_x_vals.push_back(previous_path_x[i]);
-	      next_y_vals.push_back(previous_path_y[i]);
-
-} 
-	  double target_x = 30.0;
-	  double target_y = s(target_x);
+		  vector<double> next_y_vals;
+          for(int i = 0;i<previous_path_x.size();i++)
+		  {
+			next_x_vals.push_back(previous_path_x[i]);
+			next_y_vals.push_back(previous_path_y[i]);
+		  } 
+		  double target_x = 30.0;
+	      double target_y = s(target_x);
           double target_dist = sqrt((target_x)*(target_x)+(target_y)*(target_y));
-          if(wait>0){
-          wait -= 1;}else{wait = 0;}
-	  double x_add_on = 0;
-	  for(int i=1;i<=50-previous_path_x.size();i++){
-	      double N = (target_dist/(.02*ref_vel/2.24));
-	      double x_point = x_add_on+(target_x)/N;
-              double y_point = s(x_point);
-	      x_add_on = x_point;
-		double x_ref = x_point;
-		double y_ref = y_point;
-		x_point = (x_ref*cos(ref_yaw)-y_ref*sin(ref_yaw));
-		y_point = (x_ref*sin(ref_yaw)+y_ref*cos(ref_yaw));
-		x_point += ref_x;
-		y_point += ref_y;
+          if(wait>0)
+		  {
+          wait -= 1;
+		  }else{wait = 0;}
+		  double x_add_on = 0;
+		  for(int i=1;i<=50-previous_path_x.size();i++)
+		  {
+			double N = (target_dist/(.02*ref_vel/2.24));
+			double x_point = x_add_on+(target_x)/N;
+            double y_point = s(x_point);
+			x_add_on = x_point;
+			double x_ref = x_point;
+			double y_ref = y_point;
+			x_point = (x_ref*cos(ref_yaw)-y_ref*sin(ref_yaw));
+			y_point = (x_ref*sin(ref_yaw)+y_ref*cos(ref_yaw));
+			x_point += ref_x;
+			y_point += ref_y;
 
-		next_x_vals.push_back(x_point);
-		next_y_vals.push_back(y_point);
+			next_x_vals.push_back(x_point);
+			next_y_vals.push_back(y_point);
 
 
-}
+		  }
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
 
